@@ -1,0 +1,5 @@
+#backgroundAnchor {
+	-fx-background-image: url("/resources/railmap.jpg");
+	-fx-background-size: 800 600;
+	-fx-background-position: top left;
+}
