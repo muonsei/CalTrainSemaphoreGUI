@@ -152,15 +152,15 @@ public class MainViewController {
             			trainCap + " passengers.");
             	warning.setTitle("Spawning a train");
             	warning.showAndWait();
-    	    	
-    	    	stationArray[0].spawnTrain(trainCap);
             	trainsSpawned ++;
-            	
+    	    	
             	trainStatusGridPane.add(new Label("" + trainsSpawned), 0, trainsSpawned-1);
             	trainStatusGridPane.add(new Label("0"), 1, trainsSpawned-1);
             	trainStatusGridPane.add(new Label("" + trainCap), 2, trainsSpawned-1);
             	trainStatusGridPane.add(new Label("1"), 3, trainsSpawned-1);
             	trainStatusGridPane.add(new Label("IDLE"), 4, trainsSpawned-1);
+            	
+    	    	stationArray[0].spawnTrain(trainCap);
     	    } catch(NumberFormatException nfe) {
         		CustomAlert error = alertFactory.createErrorAlert();
         		error.setContentText("Passenger capacity only accepts integer values.");

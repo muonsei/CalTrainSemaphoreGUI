@@ -52,6 +52,7 @@ public class Station {
 				" in Station " + getStationNo() + " finished loading.");
 			
 			// Depart
+			Thread.sleep(3000);
 			loadingSpot.release();
 			nextStation.loadTrain(currentlyLoading);
 			System.out.println("Train " + currentlyLoading.getTrainNo() +
