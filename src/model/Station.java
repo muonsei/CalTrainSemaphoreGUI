@@ -2,6 +2,8 @@ package model;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+import controller.MainViewController;
+
 public class Station {
 	private Semaphore loadingSpot;
 	private final int stationNo;
@@ -9,13 +11,15 @@ public class Station {
 	private Train currentlyLoading;
 	private ArrayList<Passenger> passengersWaiting;
 	public static int stationsSpawned = 0; // for stationNo purposes
+	private MainViewController c;
 	
-	public Station() {
+	public Station(MainViewController controller) {
 		stationsSpawned++;
 		stationNo = stationsSpawned;
 		// isa lang yung free na "parking spot" sa station
 		loadingSpot = new Semaphore(1);
 		nextStation = null;
+		c = controller;
 		System.out.println("Spawned Station " + stationNo + ".");
 		passengersWaiting = new ArrayList<Passenger>();
 	}
@@ -25,11 +29,14 @@ public class Station {
 	 *--------------------------------------*/
 	
 	public void spawnPassenger(Station destination) {
-		passengersWaiting.add(new Passenger(this, destination));
+		passengersWaiting.add(new Passenger(this, destination, c));
+		c.updateStationWaiting(this);
 	}
 	
 	public void spawnTrain(int capacity) {
-		loadTrain(new Train(capacity, this));
+		Train t = new Train(capacity, this, c);
+		c.updateTrainLocation(t);
+		c.updateTrainStatus(t, "SPAWNED");
 	}
 	
 	public synchronized void loadTrain(Train t) {
@@ -44,6 +51,9 @@ public class Station {
 			setCurrentlyLoading(t);
 			System.out.println("Received Train " + t.getTrainNo() + 
 				" in Station " + stationNo);
+			c.updateStationLoading(this);
+			c.updateTrainLocation(t);
+			c.updateTrainStatus(t, "LOADING");
 			
 			// Wait while there are seats left and there are still waiting passengers
 			while(currentlyLoading.getSeats().availablePermits() > 0 &&
@@ -57,6 +67,9 @@ public class Station {
 			nextStation.loadTrain(currentlyLoading);
 			System.out.println("Train " + currentlyLoading.getTrainNo() +
 					" departing from Station " + getStationNo() + ".");
+			c.updateStationLoading(this);
+			c.updateTrainLocation(t);
+			c.updateTrainStatus(t, "DEPARTING");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

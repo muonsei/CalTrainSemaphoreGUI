@@ -1,17 +1,21 @@
 package model;
 
+import controller.MainViewController;
+
 public class Passenger extends Thread {
 	private final int passengerNo;
 	private Station sourceStation;
 	private final Station destinationStation;
 	private Train currentlyRiding;
 	public static int passengersSpawned = 0; // for passengerNo purposes
+	private MainViewController c;
 	
-	public Passenger(Station source, Station destination) {
+	public Passenger(Station source, Station destination, MainViewController controller) {
 		passengersSpawned++;
 		passengerNo = passengersSpawned;
 		sourceStation = source;
 		destinationStation = destination;
+		c = controller;
 		this.start(); // start thread
 		System.out.println("Spawned Passenger " + passengerNo +
 			" in Station " + source.getStationNo() + 
@@ -44,6 +48,8 @@ public class Passenger extends Thread {
 				" is now on board Train " + currentlyRiding.getTrainNo() + ".");
 			//System.out.println("Seats left in train = " + currentlyRiding.getSeats().availablePermits());
 			//System.out.println("Passengers left in station = " + sourceStation.getPassengersWaiting().size());
+			c.updateTrainPassengers(currentlyRiding);
+			c.updateStationWaiting(sourceStation);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -57,6 +63,7 @@ public class Passenger extends Thread {
 		System.out.println("Passenger " + passengerNo + 
 			" is now departing from Train " + 
 			currentlyRiding.getTrainNo() + ".");
+		c.updateTrainPassengers(currentlyRiding);
 	}
 	
 	/*--------------------------------------

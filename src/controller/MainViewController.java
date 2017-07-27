@@ -2,6 +2,10 @@ package controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -13,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import model.Station;
+import model.Train;
 import view.AlertFactory;
 import view.CustomAlert;
 
@@ -74,12 +79,18 @@ public class MainViewController {
     @FXML
     private GridPane stationStatusGridPane;
     
-    private Label[] passengersWaitingLabel = new Label[8];
+    // Station
+    private Label[][] stationStatusLabels;
+    private StringProperty[][] stationStatusProperties;
+    
+    // Train
+    private Label[][] trainStatusLabels;
+    private StringProperty[][] trainStatusProperties;
     
     /* NON-GUI ATTRIBS */
     
     private Station[] stationArray = new Station[8];
-	private int x, trainsSpawned;
+	private int x, y, trainsSpawned;
 
 
     @FXML
@@ -117,7 +128,7 @@ public class MainViewController {
          *--------------------------------------------------*/
         
         for (x = 0; x < 8; x++) { // instantiate new stations
-			stationArray[x] = new Station();
+			stationArray[x] = new Station(this);
 		}
 		
 		for (x = 0; x < 7; x++) // set next station for station 0-6
@@ -129,15 +140,45 @@ public class MainViewController {
          *           INITIALIZE OTHER VARIABLES
          *--------------------------------------------------*/
 		trainsSpawned = 0;
-		initializeStatus();
+		
+		stationStatusLabels = new Label[8][3];
+		stationStatusProperties = new StringProperty[8][3];
+		trainStatusLabels = new Label[15][5];
+		trainStatusProperties = new StringProperty[15][5];
+		
+		// Stations
+    	for (x = 0; x < 8; x++) {
+    		for (y = 0; y < 3; y++) { // don't include 0
+    			stationStatusLabels[x][y] = new Label();
+    			stationStatusProperties[x][y] = new SimpleStringProperty("-");
+    			stationStatusLabels[x][y].textProperty().bind(stationStatusProperties[x][y]);
+    			stationStatusGridPane.add(stationStatusLabels[x][y], y, x);
+    		}
+		}
+    	
+    	// Trains
+    	for (x = 0; x < 15; x++) {
+    		for (y = 0; y < 5; y++) {
+    			trainStatusLabels[x][y] = new Label();
+    			trainStatusProperties[x][y] = new SimpleStringProperty("-");
+    			trainStatusLabels[x][y].textProperty().bind(trainStatusProperties[x][y]);
+    			trainStatusGridPane.add(trainStatusLabels[x][y], y, x);
+    		}
+    	}
+    	
+    	initializeOtherLabels();
     }
     
-    private void initializeStatus() {
+    private void initializeOtherLabels() {
+    	// Stations
     	for (x = 0; x < 8; x++) {
-			passengersWaitingLabel[x] = new Label();
-			passengersWaitingLabel[x].setText("0");
-			stationStatusGridPane.add(passengersWaitingLabel[x], 1, x);
-		}
+    		stationStatusProperties[x][0].setValue((x+1) + "");
+    	}
+    		
+    	// Trains
+    	for (x = 0; x < 15; x++) {
+    		trainStatusProperties[x][0].setValue((x+1) + "");
+    	}
     }
     
     @FXML
@@ -153,14 +194,7 @@ public class MainViewController {
             	warning.setTitle("Spawning a train");
             	warning.showAndWait();
             	trainsSpawned ++;
-    	    	
-            	trainStatusGridPane.add(new Label("" + trainsSpawned), 0, trainsSpawned-1);
-            	trainStatusGridPane.add(new Label("0"), 1, trainsSpawned-1);
-            	trainStatusGridPane.add(new Label("" + trainCap), 2, trainsSpawned-1);
-            	trainStatusGridPane.add(new Label("1"), 3, trainsSpawned-1);
-            	trainStatusGridPane.add(new Label("IDLE"), 4, trainsSpawned-1);
-            	
-    	    	stationArray[0].spawnTrain(trainCap);
+    	    	stationArray[0].spawnTrain(trainCap); // CREATES TRAIN HERE
     	    } catch(NumberFormatException nfe) {
         		CustomAlert error = alertFactory.createErrorAlert();
         		error.setContentText("Passenger capacity only accepts integer values.");
@@ -181,22 +215,30 @@ public class MainViewController {
     
     @FXML
     private void spawnPassengerAction(ActionEvent event) {
-    	int source = passengerSourceDropdown.getSelectionModel().getSelectedIndex() + 1;
-    	int destination = passengerDestinationDropdown.getSelectionModel().getSelectedIndex() + 1;
+    	int source = passengerSourceDropdown.getSelectionModel().getSelectedIndex();
+    	int destination = passengerDestinationDropdown.getSelectionModel().getSelectedIndex();
     	int passengerCount = 0;
     	try {
     		passengerCount = Integer.parseInt(passengerCountTextField.getText());
-    		CustomAlert warning = alertFactory.createInformationAlert();
-        	warning.setContentText("Spawned " + passengerCount + 
-        			" passengers in Station " + source + 
-        			" to be dropped off at Station " + destination + ".");
-        	warning.setTitle("Spawning passengers");
-        	warning.showAndWait();
-        	
-        	while (passengerCount > 0) {
-        		stationArray[source].spawnPassenger(stationArray[destination]);
-        		passengerCount--;
-        	}
+    		if (source == destination) {
+    			CustomAlert error = alertFactory.createErrorAlert();
+        		error.setContentText("Source station cannot be the same as destination.");
+        		error.setTitle("Error in spawning passengers");
+        		error.showAndWait();
+    		}
+    		else {
+    			CustomAlert warning = alertFactory.createInformationAlert();
+            	warning.setContentText("Spawned " + passengerCount + 
+            			" passengers in Station " + (source + 1) + 
+            			" to be dropped off at Station " + (destination + 1) + ".");
+            	warning.setTitle("Spawning passengers");
+            	warning.showAndWait();
+            	
+            	while (passengerCount > 0) {
+            		stationArray[source].spawnPassenger(stationArray[destination]);
+            		passengerCount--;
+            	}
+    		}
     	} catch(NumberFormatException nfe) {
     		CustomAlert error = alertFactory.createErrorAlert();
     		error.setContentText("Passenger count only accepts integer values.");
@@ -211,10 +253,51 @@ public class MainViewController {
     }
     
     @FXML
-    void stopSimulationAction(ActionEvent event) {
+    private void stopSimulationAction(ActionEvent event) {
     	CustomAlert warning = alertFactory.createInformationAlert();
     	warning.setContentText("Simulation ended.");
     	warning.setTitle("CalTrainII");
     	warning.showAndWait();
+    }
+    
+    public void updateTrainPassengers(Train t) {
+    	int trainNo, passengerCount, seatsLeft;
+    	
+    	trainNo = t.getTrainNo() - 1;
+    	passengerCount = t.getPassengersOnTrain().size();
+    	seatsLeft = t.getSeats().availablePermits();
+    	trainStatusProperties[trainNo][1].setValue(passengerCount + "");
+    	trainStatusProperties[trainNo][2].setValue(seatsLeft + "");
+    }
+    
+    public void updateTrainLocation(Train t) {
+    	int trainNo, currentStation;
+    	
+    	trainNo = t.getTrainNo() - 1;
+    	currentStation = t.getCurrentStation().getStationNo();
+    	trainStatusProperties[trainNo][3].setValue(currentStation + "");
+    }
+    
+    public void updateTrainStatus(Train t, String status) {
+    	int trainNo;
+    	
+    	trainNo = t.getTrainNo() - 1;
+    	trainStatusProperties[trainNo][4].setValue(status);
+    }
+    
+    public void updateStationWaiting(Station s) {
+    	int stationNo, passengerWaitCount;
+    	
+    	stationNo = s.getStationNo() - 1;
+    	passengerWaitCount = s.getPassengersWaiting().size();
+    	stationStatusProperties[stationNo][1].setValue(passengerWaitCount + "");
+    }
+    
+    public void updateStationLoading(Station s) {
+    	int stationNo, currentlyLoading;
+    	
+    	stationNo = s.getStationNo() - 1;
+    	currentlyLoading = s.getCurrentlyLoading().getTrainNo();
+    	stationStatusProperties[stationNo][2].setValue(currentlyLoading + "");
     }
 }
