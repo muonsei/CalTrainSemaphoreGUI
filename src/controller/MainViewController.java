@@ -3,7 +3,7 @@ package controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javafx.application.Platform;
+import javafx.animation.TranslateTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
@@ -16,6 +16,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.util.Duration;
 import model.Station;
 import model.Train;
 import view.AlertFactory;
@@ -86,6 +87,9 @@ public class MainViewController {
     // Train
     private Label[][] trainStatusLabels;
     private StringProperty[][] trainStatusProperties;
+    
+    // Train sprite
+    private Label[] trainSprite;
     
     /* NON-GUI ATTRIBS */
     
@@ -167,6 +171,20 @@ public class MainViewController {
     	}
     	
     	initializeOtherLabels();
+    	
+    	/*--------------------------------------------------*
+         *                INITIALIZE SPRITES
+         *--------------------------------------------------*/
+    	trainSprite = new Label[15];
+    	for (x = 0; x < 15; x++) {
+    		trainSprite[x] = new Label("" + (x+1));
+    		trainSprite[x].setStyle("-fx-background-color: #005895; "
+    				+ "-fx-text-fill: #FFFFFF; -fx-padding: 10px;");
+    		trainSprite[x].setLayoutX(40);
+    		trainSprite[x].setLayoutY(52);
+    		trainSprite[x].setVisible(false);
+    		trainViewAnchor.getChildren().add(trainSprite[x]);
+    	}
     }
     
     private void initializeOtherLabels() {
@@ -193,6 +211,7 @@ public class MainViewController {
             			trainCap + " passengers.");
             	warning.setTitle("Spawning a train");
             	warning.showAndWait();
+            	trainSprite[trainsSpawned].setVisible(true);
             	trainsSpawned ++;
     	    	stationArray[0].spawnTrain(trainCap); // CREATES TRAIN HERE
     	    } catch(NumberFormatException nfe) {
@@ -299,5 +318,37 @@ public class MainViewController {
     	stationNo = s.getStationNo() - 1;
     	currentlyLoading = s.getCurrentlyLoading().getTrainNo();
     	stationStatusProperties[stationNo][2].setValue(currentlyLoading + "");
+    }
+    
+    public void moveTrainSprite(int stationNo, int trainNo) {
+    	double xpos, ypos;
+    	xpos = trainSprite[trainNo].getLayoutX();
+    	ypos = trainSprite[trainNo].getLayoutY();
+    	
+    	TranslateTransition tt = new TranslateTransition(Duration.millis(2000), trainSprite[trainNo]);
+    	tt.fromXProperty().set(xpos);
+    	tt.fromYProperty().set(ypos);
+    	
+    	switch(stationNo) {
+    		case 2:
+    		case 3: 
+    			tt.toXProperty().set(xpos + 175);
+    			break;
+    		case 4:
+    		case 5:
+    			tt.toYProperty().set(ypos + 182);
+    			break;
+    		case 6:
+    		case 7:
+    			tt.toXProperty().set(xpos - 175);
+    			break;
+    		case 8:
+    		case 1:
+    			tt.toYProperty().set(ypos - 182);
+    			break;
+    	}
+    	
+        tt.setCycleCount(2000);
+        tt.play();
     }
 }

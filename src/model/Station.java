@@ -35,6 +35,7 @@ public class Station {
 	
 	public void spawnTrain(int capacity) {
 		Train t = new Train(capacity, this, c);
+		c.updateTrainPassengers(t);
 		c.updateTrainLocation(t);
 		c.updateTrainStatus(t, "SPAWNED");
 	}
@@ -63,13 +64,14 @@ public class Station {
 			
 			// Depart
 			Thread.sleep(3000);
-			loadingSpot.release();
-			nextStation.loadTrain(currentlyLoading);
-			System.out.println("Train " + currentlyLoading.getTrainNo() +
-					" departing from Station " + getStationNo() + ".");
 			c.updateStationLoading(this);
 			c.updateTrainLocation(t);
 			c.updateTrainStatus(t, "DEPARTING");
+			loadingSpot.release();
+			c.moveTrainSprite(nextStation.getStationNo(), currentlyLoading.getTrainNo());
+			nextStation.loadTrain(currentlyLoading);
+			System.out.println("Train " + currentlyLoading.getTrainNo() +
+					" departing from Station " + getStationNo() + ".");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
