@@ -57,6 +57,10 @@ public class Station {
 			c.updateTrainStatus(t, "LOADING");
 			
 			// Wait while there are seats left and there are still waiting passengers
+			for (Passenger p : currentlyLoading.getPassengersOnTrain()) {
+				if (p.getDestinationStation() == this)
+					p.depart();
+			}
 			while(currentlyLoading.getSeats().availablePermits() > 0 &&
 				passengersWaiting.isEmpty() == false);
 			System.out.println("Train " + currentlyLoading.getTrainNo() + 
@@ -64,14 +68,12 @@ public class Station {
 			
 			// Depart
 			Thread.sleep(3000);
-			c.updateStationLoading(this);
-			c.updateTrainLocation(t);
-			c.updateTrainStatus(t, "DEPARTING");
 			loadingSpot.release();
 			c.moveTrainSprite(nextStation.getStationNo(), currentlyLoading.getTrainNo());
-			nextStation.loadTrain(currentlyLoading);
 			System.out.println("Train " + currentlyLoading.getTrainNo() +
 					" departing from Station " + getStationNo() + ".");
+			c.updateTrainStatus(t, "DEPARTING");
+			currentlyLoading = null;
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

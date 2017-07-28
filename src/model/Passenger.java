@@ -57,7 +57,6 @@ public class Passenger extends Thread {
 	}
 	
 	public void depart() {
-		while(currentlyRiding.getCurrentStation() != destinationStation);
 		currentlyRiding.getSeats().release();
 		currentlyRiding.passengerDepartsFromTrain(this);
 		System.out.println("Passenger " + passengerNo + 
@@ -73,7 +72,6 @@ public class Passenger extends Thread {
 	public void run() {
 		waitForTrain();
 		onBoard();
-		depart();
 	}
 	
 	/*--------------------------------------

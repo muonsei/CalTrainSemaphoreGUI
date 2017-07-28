@@ -30,8 +30,10 @@ public class Train extends Thread {
 	
 	public void run()
 	{
-		while(true)
+		while(true) {
 			currentStation.loadTrain(this);
+			currentStation = currentStation.getNextStation();
+		}
 	}
 	
 	/*--------------------------------------
