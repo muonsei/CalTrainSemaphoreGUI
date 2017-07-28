@@ -139,6 +139,11 @@ public class MainViewController {
 			stationArray[x].setNextStation(stationArray[x + 1]);
 		
 		stationArray[7].setNextStation(stationArray[0]);
+		
+		for (x = 1; x < 8; x++) // set previous station for station 1-7
+			stationArray[x].setPreviousStation(stationArray[x - 1]);
+		
+		stationArray[0].setPreviousStation(stationArray[7]);
         
 		/*--------------------------------------------------*
          *           INITIALIZE OTHER VARIABLES
@@ -206,14 +211,22 @@ public class MainViewController {
     	if (trainsSpawned < 15) {
     		try{
     	    	trainCap = Integer.parseInt(trainPassengerCapTextField.getText());
-    	    	CustomAlert warning = alertFactory.createInformationAlert();
-            	warning.setContentText("Spawned a train with a capacity of " +
-            			trainCap + " passengers.");
-            	warning.setTitle("Spawning a train");
-            	warning.showAndWait();
-            	trainSprite[trainsSpawned].setVisible(true);
-            	trainsSpawned ++;
-    	    	stationArray[0].spawnTrain(trainCap); // CREATES TRAIN HERE
+    	    	if (trainCap > 0) {
+    	    		CustomAlert warning = alertFactory.createInformationAlert();
+                	warning.setContentText("Spawned a train with a capacity of " +
+                			trainCap + " passengers.");
+                	warning.setTitle("Spawning a train");
+                	warning.showAndWait();
+                	trainSprite[trainsSpawned].setVisible(true);
+                	trainsSpawned ++;
+        	    	stationArray[0].spawnTrain(trainCap); // CREATES TRAIN HERE
+    	    	}
+    	    	else {
+    	    		CustomAlert error = alertFactory.createErrorAlert();
+            		error.setContentText("Cannot spawn a train without any seats.");
+            		error.setTitle("Error in spawning a train");
+            		error.showAndWait();
+    	    	}
     	    } catch(NumberFormatException nfe) {
         		CustomAlert error = alertFactory.createErrorAlert();
         		error.setContentText("Passenger capacity only accepts integer values.");
@@ -289,66 +302,64 @@ public class MainViewController {
     	trainStatusProperties[trainNo][2].setValue(seatsLeft + "");
     }
     
-    public void updateTrainLocation(Train t) {
-    	int trainNo, currentStation;
-    	
-    	trainNo = t.getTrainNo() - 1;
-    	currentStation = t.getCurrentStation().getStationNo();
-    	trainStatusProperties[trainNo][3].setValue(currentStation + "");
+    public void updateTrainLocation(int trainNo, int stationNo) {
+    	trainNo -= 1;
+    	trainStatusProperties[trainNo][3].setValue(stationNo + "");
     }
     
-    public void updateTrainStatus(Train t, String status) {
-    	int trainNo;
-    	
-    	trainNo = t.getTrainNo() - 1;
+    public void updateTrainStatus(int trainNo, String status) {
+    	trainNo -= 1;
     	trainStatusProperties[trainNo][4].setValue(status);
     }
     
-    public void updateStationWaiting(Station s) {
-    	int stationNo, passengerWaitCount;
-    	
-    	stationNo = s.getStationNo() - 1;
-    	passengerWaitCount = s.getPassengersWaiting().size();
+    public void updateStationWaiting(int stationNo, int passengerWaitCount) {
+    	stationNo -= 1;
     	stationStatusProperties[stationNo][1].setValue(passengerWaitCount + "");
     }
     
-    public void updateStationLoading(Station s) {
-    	int stationNo, currentlyLoading;
-    	
-    	stationNo = s.getStationNo() - 1;
-    	currentlyLoading = s.getCurrentlyLoading().getTrainNo();
-    	stationStatusProperties[stationNo][2].setValue(currentlyLoading + "");
+    public void updateStationLoading(int stationNo, int trainNo) {
+    	stationNo -= 1;
+		stationStatusProperties[stationNo][2].setValue(trainNo + "");
+    }
+    
+    public void updateStationLoading(int stationNo, String message) {
+    	stationNo -= 1;
+		stationStatusProperties[stationNo][2].setValue("-");
     }
     
     public void moveTrainSprite(int stationNo, int trainNo) {
     	double xpos, ypos;
     	xpos = trainSprite[trainNo].getLayoutX();
     	ypos = trainSprite[trainNo].getLayoutY();
+    	System.out.println("x = " + xpos + "; y = " + ypos);
     	
-    	TranslateTransition tt = new TranslateTransition(Duration.millis(2000), trainSprite[trainNo]);
-    	tt.fromXProperty().set(xpos);
-    	tt.fromYProperty().set(ypos);
+    	TranslateTransition tt = new TranslateTransition(Duration.millis(1000), trainSprite[trainNo]);
     	
     	switch(stationNo) {
     		case 2:
     		case 3: 
+    			System.out.println("!!! Going right !!!");
     			tt.toXProperty().set(xpos + 175);
+    			tt.play();
     			break;
     		case 4:
     		case 5:
+    			System.out.println("!!! Going down !!!");
     			tt.toYProperty().set(ypos + 182);
+    			tt.play();
     			break;
     		case 6:
     		case 7:
+    			System.out.println("!!! Going left !!!");
     			tt.toXProperty().set(xpos - 175);
+    			tt.play();
     			break;
     		case 8:
     		case 1:
+    			System.out.println("!!! Going up !!!");
     			tt.toYProperty().set(ypos - 182);
+    			tt.play();
     			break;
     	}
-    	
-        tt.setCycleCount(2000);
-        tt.play();
     }
 }

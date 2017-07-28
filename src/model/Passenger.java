@@ -1,6 +1,7 @@
 package model;
 
 import controller.MainViewController;
+import javafx.application.Platform;
 
 public class Passenger extends Thread {
 	private final int passengerNo;
@@ -31,8 +32,6 @@ public class Passenger extends Thread {
 			" is waiting in Station " + sourceStation.getStationNo() + ".");
 		while (sourceStation.getLoadingSpot().availablePermits() == 1);
 		while (sourceStation.getCurrentlyLoading().getSeats().availablePermits() == 0);
-		System.out.println("Passenger " + passengerNo + 
-			" stopped waiting in Station " + sourceStation.getStationNo() + ".");
 		/* walang train sa loob ng station, just wait 
 		 * walang free seats sa train just wait
 		 * kapag may train na and may free seats, stop waiting
@@ -42,14 +41,18 @@ public class Passenger extends Thread {
 	public synchronized void onBoard() {
 		try {
 			sourceStation.getCurrentlyLoading().getSeats().acquire(); // try to sit in train
+			System.out.println("Passenger " + passengerNo + 
+					" stopped waiting in Station " + sourceStation.getStationNo() + ".");
 			currentlyRiding = sourceStation.getCurrentlyLoading();
 			currentlyRiding.passengerRidesTrain(this);
 			System.out.println("Passenger " + passengerNo + 
 				" is now on board Train " + currentlyRiding.getTrainNo() + ".");
 			//System.out.println("Seats left in train = " + currentlyRiding.getSeats().availablePermits());
 			//System.out.println("Passengers left in station = " + sourceStation.getPassengersWaiting().size());
-			c.updateTrainPassengers(currentlyRiding);
-			c.updateStationWaiting(sourceStation);
+			Platform.runLater(() -> {
+				c.updateTrainPassengers(currentlyRiding);
+				c.updateStationWaiting(sourceStation.getStationNo(), sourceStation.getPassengersWaiting().size());
+			});
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -62,7 +65,9 @@ public class Passenger extends Thread {
 		System.out.println("Passenger " + passengerNo + 
 			" is now departing from Train " + 
 			currentlyRiding.getTrainNo() + ".");
-		c.updateTrainPassengers(currentlyRiding);
+		Platform.runLater(() -> {
+			c.updateTrainPassengers(currentlyRiding);
+		});
 	}
 	
 	/*--------------------------------------

@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import controller.MainViewController;
+import javafx.application.Platform;
 
 public class Train extends Thread {
 	private Semaphore seats;
