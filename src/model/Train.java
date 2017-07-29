@@ -11,6 +11,7 @@ public class Train extends Thread {
 	private Station currentStation;
 	private ArrayList<Passenger> passengersOnTrain;
 	public static int trainsSpawned = 0; // for trainNo purposes
+	private int stationsPassed;
 	private MainViewController c;
 	
 	public Train (int cap, Station sourceStation, MainViewController controller) {
@@ -20,6 +21,7 @@ public class Train extends Thread {
 		currentStation = sourceStation;
 		passengersOnTrain = new ArrayList<Passenger>();
 		c = controller;
+		stationsPassed = 0;
 		this.start();
 		System.out.println("Spawned Train " + trainNo + 
 			" in Station " + sourceStation.getStationNo());
@@ -59,6 +61,14 @@ public class Train extends Thread {
 	
 	public ArrayList<Passenger> getPassengersOnTrain() {
 		return passengersOnTrain;
+	}
+	
+	public void addStationsPassed() {
+		stationsPassed++;
+	}
+	
+	public int getStationsPassed() {
+		return stationsPassed;
 	}
 	
 	public void passengerRidesTrain(Passenger p){

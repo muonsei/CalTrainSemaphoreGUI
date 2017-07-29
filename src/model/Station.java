@@ -61,6 +61,7 @@ public class Station {
 			setCurrentlyLoading(t);
 			System.out.println("Received Train " + t.getTrainNo() + 
 				" in Station " + stationNo);
+			t.addStationsPassed();
 			Platform.runLater(() -> {
 				c.updateStationLoading(stationNo, t.getTrainNo());
 				c.updateTrainLocation(t.getTrainNo(), stationNo);
@@ -89,7 +90,7 @@ public class Station {
 			Thread.sleep(2500);
 			int currentTrainNumber = currentlyLoading.getTrainNo();
 			Platform.runLater(() -> {
-				c.moveTrainSprite(getStationNo(), currentTrainNumber);
+				c.moveTrainSprite(nextStation.getStationNo(), currentTrainNumber);
 				c.updateTrainStatus(currentTrainNumber, "DEPARTING");
 			});
 			Thread.sleep(2500);

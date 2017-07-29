@@ -90,6 +90,7 @@ public class MainViewController {
     
     // Train sprite
     private Label[] trainSprite;
+    private TranslateTransition[] transition;
     
     /* NON-GUI ATTRIBS */
     
@@ -189,6 +190,14 @@ public class MainViewController {
     		trainSprite[x].setLayoutY(52);
     		trainSprite[x].setVisible(false);
     		trainViewAnchor.getChildren().add(trainSprite[x]);
+    	}
+    	
+    	// Transitions
+    	transition = new TranslateTransition[15];
+    	for (x = 0; x < 15; x++) {
+    		transition[x] = new TranslateTransition();
+    		transition[x].setNode(trainSprite[x]);
+    		transition[x].setDuration(Duration.millis(500)); 
     	}
     }
     
@@ -329,36 +338,35 @@ public class MainViewController {
     
     public void moveTrainSprite(int stationNo, int trainNo) {
     	double xpos, ypos;
+    	trainNo -= 1;
     	xpos = trainSprite[trainNo].getLayoutX();
     	ypos = trainSprite[trainNo].getLayoutY();
-    	System.out.println("x = " + xpos + "; y = " + ypos);
-    	
-    	TranslateTransition tt = new TranslateTransition(Duration.millis(1000), trainSprite[trainNo]);
-    	
+    	System.out.println("trainNo = " + trainNo + "; x = " + xpos + "; y = " + ypos);
+		
     	switch(stationNo) {
     		case 2:
     		case 3: 
     			System.out.println("!!! Going right !!!");
-    			tt.toXProperty().set(xpos + 175);
-    			tt.play();
+    			transition[trainNo].toXProperty().set(xpos + 150);
+    			transition[trainNo].play();
     			break;
     		case 4:
     		case 5:
     			System.out.println("!!! Going down !!!");
-    			tt.toYProperty().set(ypos + 182);
-    			tt.play();
+    			transition[trainNo].toYProperty().set(ypos + 182);
+    			transition[trainNo].play();
     			break;
     		case 6:
     		case 7:
     			System.out.println("!!! Going left !!!");
-    			tt.toXProperty().set(xpos - 175);
-    			tt.play();
+    			transition[trainNo].toXProperty().set(xpos - 160);
+    			transition[trainNo].play();
     			break;
     		case 8:
     		case 1:
     			System.out.println("!!! Going up !!!");
-    			tt.toYProperty().set(ypos - 182);
-    			tt.play();
+    			transition[trainNo].toYProperty().set(ypos - 182);
+    			transition[trainNo].play();
     			break;
     	}
     }
