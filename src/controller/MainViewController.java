@@ -347,25 +347,25 @@ public class MainViewController {
     		case 2:
     		case 3: 
     			System.out.println("!!! Going right !!!");
-    			transition[trainNo].toXProperty().set(xpos + 150);
+    			transition[trainNo].toXProperty().set(xpos + 100);
     			transition[trainNo].play();
     			break;
     		case 4:
     		case 5:
     			System.out.println("!!! Going down !!!");
-    			transition[trainNo].toYProperty().set(ypos + 182);
+    			transition[trainNo].toYProperty().set(ypos + 100);
     			transition[trainNo].play();
     			break;
     		case 6:
     		case 7:
     			System.out.println("!!! Going left !!!");
-    			transition[trainNo].toXProperty().set(xpos - 160);
+    			transition[trainNo].toXProperty().set(xpos - 100);
     			transition[trainNo].play();
     			break;
     		case 8:
     		case 1:
     			System.out.println("!!! Going up !!!");
-    			transition[trainNo].toYProperty().set(ypos - 182);
+    			transition[trainNo].toYProperty().set(ypos - 100);
     			transition[trainNo].play();
     			break;
     	}
