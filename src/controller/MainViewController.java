@@ -198,6 +198,8 @@ public class MainViewController {
     		transition[x] = new TranslateTransition();
     		transition[x].setNode(trainSprite[x]);
     		transition[x].setDuration(Duration.millis(500)); 
+    		transition[x].toXProperty().set(0);
+    		transition[x].toYProperty().set(0);
     	}
     }
     
@@ -339,33 +341,33 @@ public class MainViewController {
     public void moveTrainSprite(int stationNo, int trainNo) {
     	double xpos, ypos;
     	trainNo -= 1;
-    	xpos = trainSprite[trainNo].getLayoutX();
-    	ypos = trainSprite[trainNo].getLayoutY();
+    	xpos = trainSprite[trainNo].getTranslateX();
+    	ypos = trainSprite[trainNo].getTranslateY();
     	System.out.println("trainNo = " + trainNo + "; x = " + xpos + "; y = " + ypos);
 		
     	switch(stationNo) {
     		case 2:
     		case 3: 
     			System.out.println("!!! Going right !!!");
-    			transition[trainNo].toXProperty().set(xpos + 100);
+    			transition[trainNo].setToX(xpos + 175);
     			transition[trainNo].play();
     			break;
     		case 4:
     		case 5:
     			System.out.println("!!! Going down !!!");
-    			transition[trainNo].toYProperty().set(ypos + 100);
+    			transition[trainNo].setToY(ypos + 182);
     			transition[trainNo].play();
     			break;
     		case 6:
     		case 7:
     			System.out.println("!!! Going left !!!");
-    			transition[trainNo].toXProperty().set(xpos - 100);
+    			transition[trainNo].setToX(xpos - 175);
     			transition[trainNo].play();
     			break;
     		case 8:
     		case 1:
     			System.out.println("!!! Going up !!!");
-    			transition[trainNo].toYProperty().set(ypos - 100);
+    			transition[trainNo].setToY(ypos - 182);
     			transition[trainNo].play();
     			break;
     	}
