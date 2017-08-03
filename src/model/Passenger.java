@@ -31,7 +31,7 @@ public class Passenger extends Thread {
 		System.out.println("Passenger " + passengerNo +
 			" is waiting in Station " + sourceStation.getStationNo() + ".");
 		while (sourceStation.getLoadingSpot().availablePermits() == 1);
-		while (sourceStation.getCurrentlyLoading().getSeats().availablePermits() == 0);
+		while (sourceStation.getCurrentlyLoading() == null);
 		/* walang train sa loob ng station, just wait 
 		 * walang free seats sa train just wait
 		 * kapag may train na and may free seats, stop waiting
@@ -39,8 +39,9 @@ public class Passenger extends Thread {
 	}
 	
 	public synchronized void onBoard() {
-		try {
-			sourceStation.getCurrentlyLoading().getSeats().acquire(); // try to sit in train
+		//try {
+			while (sourceStation.getCurrentlyLoading().getSeats().availablePermits() == 0); // null ptr exception
+			sourceStation.getCurrentlyLoading().getSeats().tryAcquire(); // try to sit in train
 			System.out.println("Passenger " + passengerNo + 
 					" stopped waiting in Station " + sourceStation.getStationNo() + ".");
 			currentlyRiding = sourceStation.getCurrentlyLoading();
@@ -53,10 +54,10 @@ public class Passenger extends Thread {
 				c.updateTrainPassengers(currentlyRiding);
 				c.updateStationWaiting(sourceStation.getStationNo(), sourceStation.getPassengersWaiting().size());
 			});
-		} catch (InterruptedException e) {
+		//} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			//e.printStackTrace();
+		//}
 	}
 	
 	public void depart() {

@@ -141,7 +141,6 @@
                   <Font size="24.0" />
                </font>
             </Label>
-            <Button fx:id="stopSimulationButton" layoutX="1241.0" layoutY="659.0" mnemonicParsing="false" onAction="#stopSimulationAction" text="Stop Simulation" />
             <GridPane layoutX="856.0" layoutY="58.0" prefHeight="28.0" prefWidth="468.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="67.0" />
@@ -176,6 +175,30 @@
                   <Label alignment="CENTER" prefHeight="17.0" prefWidth="164.0" styleClass="statusLabels" text="Train Currently Loading" GridPane.columnIndex="2" />
                </children>
             </GridPane>
+            <GridPane layoutX="923.0" layoutY="663.0" prefHeight="30.0" prefWidth="417.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="162.0" minWidth="10.0" prefWidth="123.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="165.0" minWidth="10.0" prefWidth="112.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="103.0" minWidth="10.0" prefWidth="66.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="119.0" minWidth="10.0" prefWidth="116.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Button fx:id="stopSimulationButton" mnemonicParsing="false" onAction="#stopSimulationAction" prefHeight="25.0" prefWidth="116.0" text="Pause Simulation" GridPane.columnIndex="3" />
+                  <TextField fx:id="stopSimulationTextField" prefHeight="28.0" prefWidth="132.0" GridPane.columnIndex="1" />
+                  <Label prefHeight="17.0" prefWidth="127.0" text="Pause simulation for" />
+                  <Label prefHeight="17.0" prefWidth="50.0" text="seconds" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
+               </children>
+            </GridPane>
+            <Label layoutX="72.0" layoutY="353.0" text="Import .CSV">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <Button fx:id="importTrainCSV" layoutX="34.0" layoutY="396.0" mnemonicParsing="false" onAction="#importTrainCSVAction" prefHeight="25.0" prefWidth="200.0" text="Import Train CSV" />
+            <Button fx:id="importPassengerCSV" layoutX="34.0" layoutY="428.0" mnemonicParsing="false" onAction="#importPassengerCSVAction" prefHeight="25.0" prefWidth="200.0" text="Import Passenger CSV" />
          </children>
       </AnchorPane>
    </children>

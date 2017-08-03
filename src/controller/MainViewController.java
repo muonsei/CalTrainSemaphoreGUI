@@ -1,5 +1,10 @@
 package controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -16,6 +21,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import model.Station;
 import model.Train;
@@ -75,6 +81,9 @@ public class MainViewController {
     private Button stopSimulationButton;
     
     @FXML
+    private TextField stopSimulationTextField;
+    
+    @FXML
     private GridPane trainStatusGridPane;
     
     @FXML
@@ -91,6 +100,9 @@ public class MainViewController {
     // Train sprite
     private Label[] trainSprite;
     private TranslateTransition[] transition;
+    
+    // File chooser
+    private FileChooser fileChooser;
     
     /* NON-GUI ATTRIBS */
     
@@ -113,6 +125,7 @@ public class MainViewController {
         assert trainStatusScrollPane != null : "fx:id=\"trainStatusScrollPane\" was not injected: check your FXML file 'MainView.fxml'.";
         assert stationStatusScrollPane != null : "fx:id=\"stationStatusScrollPane\" was not injected: check your FXML file 'MainView.fxml'.";
         assert stopSimulationButton != null : "fx:id=\"stopSimulationButton\" was not injected: check your FXML file 'MainView.fxml'.";
+        assert stopSimulationTextField != null : "fx:id=\"stopSimulationTextField\" was not injected: check your FXML file 'MainView.fxml'.";
         assert trainStatusGridPane != null : "fx:id=\"trainStatusGridPane\" was not injected: check your FXML file 'MainView.fxml'.";
         assert stationStatusGridPane != null : "fx:id=\"stationStatusGridPane\" was not injected: check your FXML file 'MainView.fxml'.";
         
@@ -177,6 +190,14 @@ public class MainViewController {
     	}
     	
     	initializeOtherLabels();
+    	
+    	/*--------------------------------------------------*
+         *              INITIALIZE FILECHOOSER
+         *--------------------------------------------------*/
+    	
+    	fileChooser = new FileChooser();
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Comma separated values (*.csv)", "*.csv");
+    	fileChooser.getExtensionFilters().add(extFilter);
     	
     	/*--------------------------------------------------*
          *                INITIALIZE SPRITES
@@ -298,9 +319,98 @@ public class MainViewController {
     @FXML
     private void stopSimulationAction(ActionEvent event) {
     	CustomAlert warning = alertFactory.createInformationAlert();
+    	int pauseTime = 0;
+    	try {
+    		pauseTime = Integer.parseInt(stopSimulationTextField.getText());
+    	} catch(NumberFormatException nfe) {
+    		CustomAlert error = alertFactory.createErrorAlert();
+    		error.setContentText("Pause time only accepts integer values.");
+    		error.setTitle("Error in pausing simulation");
+    		error.showAndWait();
+    	}
+    	// PAUSE HERE!!!
     	warning.setContentText("Simulation ended.");
     	warning.setTitle("CalTrainII");
     	warning.showAndWait();
+    }
+    
+    @FXML
+    private void importTrainCSVAction(ActionEvent event) {
+    	fileChooser.setTitle("Open train CSV file");
+    	File file = fileChooser.showOpenDialog(null);
+    	
+    	BufferedReader br = null;
+		String line = "";
+		String csvSpliterator = ",";
+		String[] trainString;
+		
+		try {
+			br = new BufferedReader(new FileReader(file));
+			while ((line = br.readLine()) != null && trainsSpawned < 15) {
+				trainString = line.split(csvSpliterator);
+				stationArray[0].spawnTrain(Integer.parseInt(trainString[0]));
+				trainSprite[trainsSpawned].setVisible(true);
+				trainsSpawned++;
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+						e.printStackTrace();
+		} finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    @FXML
+    private void importPassengerCSVAction(ActionEvent event) {
+    	fileChooser.setTitle("Open passenger CSV file");
+    	File file = fileChooser.showOpenDialog(null);
+    	
+    	BufferedReader br = null;
+		String line = "";
+		String csvSpliterator = ",";
+		String[] passengerString;
+		
+		try {
+			br = new BufferedReader(new FileReader(file));
+			while ((line = br.readLine()) != null) {
+				passengerString = line.split(csvSpliterator);
+				/* passengerString[0] = source
+				 * passengerString[1] = destination
+				 * passengerString[2] = passengerCount
+				 */
+				int source = Integer.parseInt(passengerString[0]) - 1,
+					destination = Integer.parseInt(passengerString[1]) - 1,
+					passengerCount = Integer.parseInt(passengerString[2]);
+				
+				while (passengerCount > 0) {
+            		stationArray[source].spawnPassenger(stationArray[destination]);
+            		passengerCount--;
+            	}
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+						e.printStackTrace();
+		} finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
     
     public void updateTrainPassengers(Train t) {
