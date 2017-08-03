@@ -40,8 +40,8 @@ public class Passenger extends Thread {
 	
 	public synchronized void onBoard() {
 		//try {
-			while (sourceStation.getCurrentlyLoading().getSeats().availablePermits() == 0); // null ptr exception
-			sourceStation.getCurrentlyLoading().getSeats().tryAcquire(); // try to sit in train
+			//while (sourceStation.getCurrentlyLoading().getSeats().availablePermits() == 0); // null ptr exception
+			sourceStation.getCurrentlyLoading().getSeats().acquireUninterruptibly(); // try to sit in train
 			System.out.println("Passenger " + passengerNo + 
 					" stopped waiting in Station " + sourceStation.getStationNo() + ".");
 			currentlyRiding = sourceStation.getCurrentlyLoading();
